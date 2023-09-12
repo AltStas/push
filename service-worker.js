@@ -1,0 +1,1 @@
+importScripts('https://pxl.stas-chernikov.dev.altkraft.com/service-worker.js?id=MXwxNA..');
