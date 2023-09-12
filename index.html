@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang = "en">
+    <head>
+        <title>iOS WebPush Testing App</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel= "shortcut icon" href= "./resources/favicon.png">
+        <link rel="stylesheet" href="./resources/styles.css" />
+        <meta property="og:site_name" content="WebPush App" />
+
+        <link rel="mask-icon" sizes="any" href="https://igor-egorov.dev.altkraft.com/695361968/1/642d6041c5255c487c271100/Favicon.png" color="#FFF">
+        <link rel="apple-touch-icon" sizes="192x192" href="https://igor-egorov.dev.altkraft.com/695361968/1/642d6041c5255c487c271100/Favicon.png" />
+        <link rel="apple-touch-startup-image" href="https://igor-egorov.dev.altkraft.com/695361968/1/642d6041c5255c487c271100/Favicon.png">
+
+        <meta name="apple-mobile-web-app-title" content="WebPush App">
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="white" />
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.js"></script>
+	<script src="https://pxl.igor-egorov.qa.altcraft.com/ak_container.js?id=MXw2NQ.." ></script>
+
+        <link rel="manifest" href="manifest.json"></link>
+    </head>
+    <body>
+
+        <div class = "container">
+            <p>iOS <i class = "apple__icon"></i> Web Push Application</p>
+            <p class = "subtitle">Click subscribe to receive notifications</p>   
+        </div>
+
+        <div class = "container" style = "margin-top: 5%;">
+            <div class = "container__toolbox">
+              <button type="button" id="init_sub" style = "margin-top: 10%;">Subscribe profile #1</button>
+              <button type="button" id="init_sub_2" style = "margin-top: 10%;">Subscribe profile #2</button>
+              <button type="button" id="init_sub_diff" style = "margin-top: 10%;">Subscribe profile #1 (Diff DB)</button>
+              <button type="button" id="init_sub_2_diff" style = "margin-top: 10%;">Subscribe profile #2 (Diff DB)</button>
+              <button type="button" id="update_sub" style = "margin-top: 10%;">Update profile #1 and create NEW</button>
+              <button type="button" id="init_sub_bunch" style = "margin-top: 10%;">Subscribe bunch profiles with one token</button>
+              <button type="button" id="init_sub_bunch_new_token" style = "margin-top: 10%;">Subscribe bunch profiles with new tokens</button>
+              <button type="button" id="reset" style = "margin-top: 10%;">Reset token</button>
+              <button type="button" id="killer" style = "margin-top: 10%;">Kill workers</button>
+              <button type="button" id="expire" style = "margin-top: 10%;">Make the token expired</button>
+              <button type="button" id="page-reload" style = "margin-top: 10%;">Reload the page</button>
+            </div>
+            <p id ="txt" class="text">Hi 😜</p>
+        </div>
+
+<script>
+
+  const profileEmails = [
+    'john_doe@somemail.eu',
+    'kevin_mcclain@mail.com',
+    'ian_hecox@hotmail.com',
+    'dude@postal.two',
+    'nick@mail.cz',
+    'db1@example.com',
+    'db2@example.com'
+  ];
+  
+  // При загрузке окна инициализируется AKPush
+  window.onload = function() {
+
+    // Объект AKPush
+    window.akPush = new AKPush();
+    //akPush.initSubscription({ email: 'test@test.mail'});
+    console.log(akPush);
+  };
+
+  // Установка текста
+  function setText(id, text) {
+    var element = document.getElementById(id);
+    element.innerText = text;
+  }
+
+  /* Регистрация группы профилей c новым токеном */
+  document.getElementById('init_sub_bunch_new_token').addEventListener('click', async function() {
+    try {
+      var akp = AKPush;
+      for ( var i = 0; i < profileEmails.length; i++ ) {
+        await akPush.initSubscription({ email: profileEmails[i]}); // ..показать форму подписки
+        console.log(`Запрошена подписка на email: ${profileEmails[i]}`);
+        setText('txt', `Subscription on email: ${profileEmails[i]}`);
+
+        await akp.removeToken();
+        console.log('Токен удален');
+      }
+    }
+
+    catch (e) {
+      console.log(`Подписка на email: ${profileEmails[i]} не удалась`);
+      alert(e);
+    }
+
+  });
+  
+
+  /* Регистрация группы профилей c одним токеном */
+  document.getElementById('init_sub_bunch').addEventListener('click', function() {
+    try {
+      for ( var i = 0; i < profileEmails.length; i++ ) {
+        akPush.initSubscription({ email: profileEmails[i]}); // ..показать форму подписки
+        console.log(`Запрошена подписка на email: ${profileEmails[i]}`);
+        setText('txt', `Subscription on email: ${profileEmails[i]}`);
+      }
+    }
+
+    catch (e) {
+      console.log(`Подписка на email: ${profileEmails[i]} не удалась`);
+      alert(e);
+    }
+
+  });
+
+  /* Обновление профиля 1 и создание нового */
+  document.getElementById('update_sub').addEventListener('click', function() {
+    try {
+      akPush.updateSubscription({ email: profileEmails[0]}, {_fname: "BIBA"}); // ..показать форму подписки
+      console.log(`Запрошена подписка на email: ${profileEmails[0]}`);
+      setText('txt', `Subscription on email: ${profileEmails[0]}`);
+
+      akPush.updateSubscription({ email: 'NewProfile@neeeeew.qwe'}, {_fname: "BOBA"}); // ..показать форму подписки
+      console.log(`Запрошена подписка на email: NewProfile@neeeeew.qwe`);
+      setText('txt', `Subscription on email: NewProfile@neeeeew.qwe`);
+    }
+
+    catch (e) {
+      alert(e);
+    }
+
+  });
+
+
+  /* Регистрация профиля 1 */
+  document.getElementById('init_sub').addEventListener('click', function() {
+    try {
+      akPush.initSubscription({ email: profileEmails[0]}); // ..показать форму подписки
+      console.log(`Запрошена подписка на email: ${profileEmails[0]}`);
+      setText('txt', `Subscription on email: ${profileEmails[0]}`);
+    }
+
+    catch (e) {
+      console.log(`Подписка на email: ${profileEmails[0]} не удалась`);
+      alert(e);
+    }
+
+  });
+
+  /* Регистрация профиля 2 */
+  document.getElementById('init_sub_2').addEventListener('click', function() {
+    try {
+      akPush.initSubscription({ email: profileEmails[1]}); // ..показать форму подписки
+      console.log(`Запрошена подписка на email: ${profileEmails[1]}`);
+      setText('txt', `Subscription on email: ${profileEmails[1]}`);
+    }
+
+    catch (e) {
+      console.log(`Подписка на email: ${profileEmails[1]} не удалась`);
+      alert(e);
+    }
+
+  });
+
+  /* Регистрация профиля 1 (Разные ДБ) */
+  document.getElementById('init_sub_diff').addEventListener('click', function() {
+    try {
+      akPush.initSubscription({ email: profileEmails[5],
+				db: [43]}); // ..показать форму подписки
+      console.log(`Запрошена подписка на email: ${profileEmails[5]}`);
+      setText('txt', `Subscription on email: ${profileEmails[5]}`);
+    }
+
+    catch (e) {
+      console.log(`Подписка на email: ${profileEmails[5]} не удалась`);
+      alert(e);
+    }
+
+  });
+
+  /* Регистрация профиля 2 (Разные ДБ) */
+  document.getElementById('init_sub_2_diff').addEventListener('click', function() {
+    try {
+      akPush.initSubscription({ email: profileEmails[6],
+				db: [44]}); // ..показать форму подписки
+      console.log(`Запрошена подписка на email: ${profileEmails[6]}`);
+      setText('txt', `Subscription on email: ${profileEmails[6]}`);
+    }
+
+    catch (e) {
+      console.log(`Подписка на email: ${profileEmails[6]} не удалась`);
+      alert(e);
+    }
+
+  });
+
+  /* Удалить воркеры */
+  document.getElementById('killer').addEventListener('click', async function() {
+    try {
+      registrations = await navigator.serviceWorker.getRegistrations();
+        for ( let registration of registrations ) {
+            registration.unregister();
+            console.log('Воркер удален');
+            setInterval(setText('txt', `Worker ${registration.active.scriptURL} removed`)), 3000;
+        }
+    }
+    catch(e) {
+      console.log('Ошибка удаления воркера');
+      alert(e);
+    }
+  });
+
+  /* Сбросить токен */
+  document.getElementById('reset').addEventListener('click', async function() {
+    let akp = AKPush;
+    try {
+      await akp.removeToken();
+      localStorage.clear();
+      console.log('Токен удален');
+      setText('txt', `Token Removed`);
+    }
+    catch(e) {
+      console.log('Ошибка удаления токена');
+      alert(e);
+    }
+
+  });
+
+  /* Просрочить токен */
+  document.getElementById('expire').addEventListener('click', async function() {
+    try {
+      let response = await localforage.getItem(akPush.config.randomPrefix + 'current_token');
+      response = response.replace(/...$/,"xyz");
+      await localforage.setItem(akPush.config.randomPrefix + 'current_token', response);
+      setText('txt', `Token expired!`);
+    }
+    catch(e) {
+      console.log('Ошибка перезаписи токена');
+      alert(e);
+    }
+  });
+
+  /* Page reload */
+  document.getElementById('page-reload').addEventListener('click', async function() {
+    try {
+      setTimeout(() => { window.location.reload() }, 1000);
+    }
+    catch(e) {
+      console.log('Ошибка перезагрузки страницы');
+      alert(e);
+    }
+  });
+
+</script>
+<!-- pixel -->
+        <script type="text/javascript">
+        !function(){var e={url:"https://pxl.igor-egorov.qa.altcraft.com/pixel?k=34FyFph%2BVuzFYrhPh7C10Nk7Jg3MJUl1m%2Fqui6fGQJa6XD9SM9jghQ%3D%3D&s=XZCMwL8NN%2B8%3D",goals:"",value:parseFloat("0"),timeout:parseInt("0"),after_scroll:JSON.parse("false"),auto_load:JSON.parse("true")},o=function(o,t,n,a){var d=[].concat(o).map(function(e){return encodeURIComponent(e)}).join(","),c=encodeURIComponent(String(t||0)),i=encodeURIComponent(n.matching_mode||""),r=encodeURIComponent(n.db_id||0),u=encodeURIComponent(JSON.stringify(n.match||{})),l=encodeURIComponent(JSON.stringify(n.update||{}));setTimeout(function(){(new Image).src=[e.url,"goals="+d,"value="+c,"db_id="+r,"mmode="+i,"match="+u,"update="+l].join("&")},a)},t=!1,n=function(){t||(t=!0,e.after_scroll?document.addEventListener("scroll",function(){(window.pageYOffset||document.documentElement.scrollTop>0)&&o(e.goals,e.value,{},e.timeout)},{once:true}):e.auto_load&&o(e.goals,e.value,{},e.timeout))};"complete"===document.readyState||"interactive"===document.readyState?n():window.addEventListener("load",n);window.ak_pixel_push=function(e,t,n,a,d,c){var i=[];Array.isArray(e)?i=e:i[0]=e,o(i,t,{match:n,update:a,matching_mode:d,db_id:c},0)}}();
+        </script>
+    </body>
+</html>
